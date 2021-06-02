@@ -86,7 +86,7 @@ uint8_t add_fingerprint(uint8_t perm)
 	uint8_t user_idL = user_id & LOW_BYTE_bm;
 	uint8_t user_idH = (user_id >> 8) & LOW_BYTE_bm;
 	//Create checksum and message
-	uint8_t b1_chk = HEAD^ADD_PRINT1^user_idL^user_idH^perm;
+	uint8_t b1_chk = ADD_PRINT1^user_idL^user_idH^perm;
 	uint8_t add_bytes1[] = {HEAD, ADD_PRINT1, user_idH, user_idL, perm, ZERO, b1_chk, TAIL};
 	//Send the command
 	send_command_nbyte(add_bytes1, 8);
@@ -99,7 +99,7 @@ uint8_t add_fingerprint(uint8_t perm)
 	//Send a second time
 	
 	//Create checksum and message
-	b1_chk = HEAD^ADD_PRINT2^user_idL^user_idH^perm;
+	b1_chk = ADD_PRINT2^user_idL^user_idH^perm;
 	uint8_t add_bytes2[] = {HEAD, ADD_PRINT2, user_idH, user_idL, perm, ZERO, b1_chk, TAIL};
 	//Send the command
 	send_command_nbyte(add_bytes2, 8);
@@ -110,7 +110,7 @@ uint8_t add_fingerprint(uint8_t perm)
 	if (ack2[RES_BYTE] != ACK_SUCCESS) return ack2[RES_BYTE];
 	
 	//Create checksum and message
-	b1_chk = HEAD^ADD_PRINT3^user_idL^user_idH^perm;
+	b1_chk = ADD_PRINT3^user_idL^user_idH^perm;
 	uint8_t add_bytes3[] = {HEAD, ADD_PRINT3, user_idH, user_idL, perm, ZERO, b1_chk, TAIL};
 	//Send the command
 	send_command_nbyte(add_bytes3, 8);
@@ -126,8 +126,8 @@ uint8_t add_fingerprint(uint8_t perm)
 uint8_t disable_duplicate_mode()
 {
 	//Create checksum and message
-	uint8_t message_chk = HEAD^NEW_MODE^DIS_DUP^NEW_MODE;
-	uint8_t message[] = {HEAD, NEW_MODE, ZERO, DIS_DUP, NEW_MODE, ZERO, message_chk, TAIL};
+	uint8_t message_chk = SET_READ_MODE^DIS_DUP^NEW_MODE;
+	uint8_t message[] = {HEAD, SET_READ_MODE, ZERO, DIS_DUP, NEW_MODE, ZERO, message_chk, TAIL};
 	//Send the command
 	send_command_nbyte(message, 8);
 	//Wait for ack and return outcome
@@ -139,7 +139,7 @@ uint8_t disable_duplicate_mode()
 uint8_t enable_duplicate_mode()
 {
 	//Create checksum and message
-	uint8_t message_chk = HEAD^SET_READ_MODE^EN_DUP^NEW_MODE;
+	uint8_t message_chk = SET_READ_MODE^EN_DUP^NEW_MODE;
 	uint8_t message[] = {HEAD, SET_READ_MODE, ZERO, EN_DUP, NEW_MODE, ZERO, message_chk, TAIL};
 	//Send the command
 	send_command_nbyte(message, 8);
@@ -152,7 +152,7 @@ uint8_t enable_duplicate_mode()
 uint8_t query_duplicate_mode()
 {
 	//Create checksum and message
-	uint8_t message_chk = HEAD^SET_READ_MODE^READ_MODE;
+	uint8_t message_chk = SET_READ_MODE^READ_MODE;
 	uint8_t message[] = {HEAD, SET_READ_MODE, ZERO, ZERO, READ_MODE, ZERO, message_chk, TAIL};
 	//Send the command
 	send_command_nbyte(message, 8);
@@ -168,7 +168,7 @@ uint8_t delete_all_users(uint8_t perm)
 	//Check if perm number is valid
 	if (perm > PERM_3) return ACK_FAIL;
 	//Create checksum and message
-	uint8_t message_chk = HEAD^DELETE_ALL^perm;
+	uint8_t message_chk = DELETE_ALL^perm;
 	uint8_t message[] = {HEAD, DELETE_ALL, ZERO, ZERO, perm, ZERO, message_chk, TAIL};
 	//Send the command
 	send_command_nbyte(message, 8);
@@ -181,7 +181,7 @@ uint8_t delete_all_users(uint8_t perm)
 uint16_t get_user_count()
 {
 	//Create checksum and message
-	uint8_t message_chk = HEAD^USER_COUNT^QUERY_COUNT;
+	uint8_t message_chk = USER_COUNT^QUERY_COUNT;
 	uint8_t message[] = {HEAD, USER_COUNT, ZERO, ZERO, QUERY_COUNT, ZERO, message_chk, TAIL};
 	//Send the command
 	send_command_nbyte(message, 8);
@@ -202,7 +202,7 @@ uint16_t get_user_count()
 uint8_t get_eigenvalues(uint8_t *eigenvalues1)
 {
 	//Acquire image and upload eigenvalues
-	uint8_t b2_chk = HEAD^ACQUIRE_IMG_UPL_EIG;
+	uint8_t b2_chk = ACQUIRE_IMG_UPL_EIG;
 	uint8_t upload1[] = {HEAD, ACQUIRE_IMG_UPL_EIG, ZERO, ZERO, ZERO, ZERO, b2_chk, TAIL};
 	send_command_nbyte(upload1, 8);
 	//Receive ack head and eigenvalues
@@ -216,7 +216,7 @@ uint8_t get_eigenvalues(uint8_t *eigenvalues1)
 uint16_t compare_1_to_n()
 {
 	//Create checksum and message
-	uint8_t message_chk = HEAD^COMPARE_1toN;
+	uint8_t message_chk = USER_COUNT;
 	uint8_t message[] = {HEAD, USER_COUNT, ZERO, ZERO, ZERO, ZERO, message_chk, TAIL};
 	//Send the command
 	send_command_nbyte(message, 8);
@@ -231,8 +231,8 @@ uint16_t compare_1_to_n()
 void set_capture_timeout(uint8_t timeout)
 {
 	//Create checksum and message
-	uint8_t message_chk = HEAD^CAPTURE_TIMEOUT^timeout;
-	uint8_t message[] = {HEAD, CAPTURE_TIMEOUT, ZERO, timeout, QUERY_TIMEOUT, ZERO, message_chk, TAIL};
+	uint8_t message_chk = CAPTURE_TIMEOUT^timeout^SET_TIMEOUT;
+	uint8_t message[] = {HEAD, CAPTURE_TIMEOUT, ZERO, timeout, SET_TIMEOUT, ZERO, message_chk, TAIL};
 	//Send the command
 	send_command_nbyte(message, 8);
 	//Wait for ack and return outcome

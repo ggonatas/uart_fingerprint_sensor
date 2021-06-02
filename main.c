@@ -69,8 +69,7 @@ ISR(PORTA_PORT_vect)
 	cli();
 	//Wait 10ms
 	_delay_ms(10);
-	//Check if still low
-	if (! (UART_PORT.IN & (1<<WAKE_bp)))
+	if ((UART_PORT.IN & (1<<WAKE_bp)))
 	{
 		//Force RST high
 		UART_PORT.OUT |= (1<<RST_bp);
@@ -133,7 +132,7 @@ void init_ports()
 	//Set PA2 as input for wake
 	UART_PORT.DIR &= ~(1<<WAKE_bp);
 	//Enable interrupt and pull up on PA2
-	UART_PORT.PIN2CTRL|= 0x08 | 0x03;
+	UART_PORT.PIN2CTRL|= 0x08 | 0x02;
 	//Set PA3 as output, set to 0
 	UART_PORT.DIR |= (1<<RST_bp);
 	UART_PORT.OUT &= ~(1<<RST_bp);

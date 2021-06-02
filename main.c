@@ -30,15 +30,18 @@ ISR(PORTF_PORT_vect)
 	_delay_ms(10);
 	if (!(SWITCH_PORT.IN & (1<<SWITCH_bp)))
 	{
+		UART_PORT.OUT &= ~RST_bm;
+		_delay_ms(250);
 		//Force RST high
 		UART_PORT.OUT |= (1<<RST_bp);
+		_delay_ms(250);
 		//Wait for module to start
 		clear_screen(&LCD_DATA_PORT, &LCD_CONTROL_PORT);
-		_delay_ms(25);
+		_delay_ms(20);
 		write_string("Place Finger...", &LCD_DATA_PORT, &LCD_CONTROL_PORT);
 		while(!(UART_PORT.IN & (1<<WAKE_bp)));
 		clear_screen(&LCD_DATA_PORT, &LCD_CONTROL_PORT);
-		_delay_ms(25);
+		_delay_ms(20);
 		write_string("Reading...", &LCD_DATA_PORT, &LCD_CONTROL_PORT);
 		uint16_t result = add_fingerprint(0x02);
 		_delay_ms(1000);
@@ -73,11 +76,13 @@ ISR(PORTA_PORT_vect)
 	_delay_ms(10);
 	if ((UART_PORT.IN & (1<<WAKE_bp)))
 	{
+		UART_PORT.OUT &= ~RST_bm;
+		_delay_ms(250);
 		//Force RST high
 		UART_PORT.OUT |= (1<<RST_bp);
 		//Wait for module to start
 		clear_screen(&LCD_DATA_PORT, &LCD_CONTROL_PORT);
-		_delay_ms(25);
+		_delay_ms(20);
 		write_string("Place Finger...", &LCD_DATA_PORT, &LCD_CONTROL_PORT);
 		_delay_ms(1000);
 		_delay_ms(1000);

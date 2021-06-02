@@ -10,8 +10,7 @@
 #define FS_CONFIG_H_
 
 #define F_CPU 750000
-#define USART0_BAUD_RATE(BAUD_RATE) ((float)(F_CPU * 64 / (16 * (float)BAUD_RATE)) + 0.5)
-//#define USART0_BAUD_RATE(BAUD_RATE) (((F_CPU / (BAUD_RATE * 16UL))) - 1)
+#define USART0_BAUD_RATE(BAUD_RATE) ((float)(F_CPU / (16 * (float)BAUD_RATE)))
 #define TX_bp 0
 #define RX_bp 1
 #define WAKE_bp 2

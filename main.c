@@ -6,7 +6,7 @@
  */ 
 
 #include <avr/io.h>
-#include "fs_config.h"
+#include "fs_lib/fs_config.h"
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <stdlib.h>
@@ -36,8 +36,10 @@ ISR(PORTF_PORT_vect)
 		clear_screen(&LCD_DATA_PORT, &LCD_CONTROL_PORT);
 		_delay_ms(25);
 		write_string("Place Finger...", &LCD_DATA_PORT, &LCD_CONTROL_PORT);
-		_delay_ms(2000);
-		_delay_ms(1000);
+		while(!(UART_PORT.IN & (1<<WAKE_bp)));
+		clear_screen(&LCD_DATA_PORT, &LCD_CONTROL_PORT);
+		_delay_ms(25);
+		write_string("Reading...", &LCD_DATA_PORT, &LCD_CONTROL_PORT);
 		uint16_t result = add_fingerprint(0x02);
 		_delay_ms(1000);
 		_delay_ms(1000);
@@ -151,8 +153,11 @@ int main(void)
 {
 	init_ports();
 	init_uart();
-	//set_capture_timeout(TIMEOUT_MAX);
-	_delay_ms(20);
+	//Force RST high
+	UART_PORT.OUT |= (1<<RST_bp);
+	_delay_ms(25);
+	set_capture_timeout(TIMEOUT_MAX);
+	UART_PORT.OUT &= ~(1<<RST_bp);
 	init_lcd(&LCD_DATA_PORT, &LCD_CONTROL_PORT);
 	_delay_ms(1);
 	
